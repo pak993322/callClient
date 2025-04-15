@@ -235,7 +235,7 @@ export default function CallInterface({ myStream, remoteStream, onEndCall, isAud
 
           {/* Local video */}
           <div
-            className={`absolute bottom-2 right-2 ${isFullScreen ? "w-1/3 h-1/6 md:h-1/4 md:w-1/5" : "w-1/4 md:w-1/4 sm:w-1/3"} aspect-video bg-slate-800 rounded-xl overflow-hidden border-2 border-white shadow-lg transition-all duration-300 hover:scale-105`}
+            className={`absolute bottom-2 right-2 ${isFullScreen ? "w-1/3 md:w-1/5" : "w-1/4 md:w-1/4 sm:w-1/3"} aspect-video bg-slate-800 rounded-xl overflow-hidden border-2 border-white shadow-lg transition-all duration-300 hover:scale-105`}
           >
             <video
               ref={localVideoRef}
