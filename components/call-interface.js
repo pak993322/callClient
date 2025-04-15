@@ -192,9 +192,11 @@ export default function CallInterface({ myStream, remoteStream, onEndCall, isAud
 
       if (localVideo) {
         if (isMobile) {
-          localVideo.style.width = "40%" // Larger on mobile
+          localVideo.style.width = "50%" // Larger on mobile
+          localVideo.style.height = "auto" // Let height adjust with aspect ratio
         } else {
-          localVideo.style.width = isFullScreen ? "20%" : "25%"
+          localVideo.style.width = isFullScreen ? "33%" : "30%" // Increased fullscreen size to 33%
+          localVideo.style.height = "auto" // Let height adjust with aspect ratio
         }
       }
     }
@@ -233,9 +235,11 @@ export default function CallInterface({ myStream, remoteStream, onEndCall, isAud
             </div>
           )}
 
-          {/* Local video */}
+          {/* Local video - increased size */}
           <div
-            className={`absolute bottom-2 right-2 ${isFullScreen ? "w-1/3 md:w-1/5" : "w-1/4 md:w-1/4 sm:w-1/3"} aspect-video bg-slate-800 rounded-xl overflow-hidden border-2 border-white shadow-lg transition-all duration-300 hover:scale-105`}
+            className={`absolute bottom-2 right-2 ${
+              isFullScreen ? "w-1/3 md:w-1/3" : "w-1/4 md:w-1/4 sm:w-1/3"
+            } aspect-video bg-slate-800 rounded-xl overflow-hidden border-2 border-white shadow-lg transition-all duration-300 hover:scale-105`}
           >
             <video
               ref={localVideoRef}
