@@ -16,6 +16,13 @@ export default function CallInterface({ myStream, remoteStream, onEndCall, isAud
   const [callDuration, setCallDuration] = useState(0)
   const [isFullScreen, setIsFullScreen] = useState(false)
   const [showControls, setShowControls] = useState(true)
+  // Add a new state to track if local stream is expanded
+  const [isLocalStreamExpanded, setIsLocalStreamExpanded] = useState(false)
+
+  // Add a function to toggle local stream expansion
+  const toggleLocalStreamExpansion = () => {
+    setIsLocalStreamExpanded(!isLocalStreamExpanded)
+  }
 
   // Call timer - only starts when both users are connected
   useEffect(() => {
@@ -192,11 +199,9 @@ export default function CallInterface({ myStream, remoteStream, onEndCall, isAud
 
       if (localVideo) {
         if (isMobile) {
-          localVideo.style.width = "50%" // Larger on mobile
-          localVideo.style.height = "auto" // Let height adjust with aspect ratio
+          localVideo.style.width = "40%" // Larger on mobile
         } else {
-          localVideo.style.width = isFullScreen ? "33%" : "30%" // Increased fullscreen size to 33%
-          localVideo.style.height = "auto" // Let height adjust with aspect ratio
+          localVideo.style.width = isFullScreen ? "20%" : "25%"
         }
       }
     }
@@ -215,9 +220,28 @@ export default function CallInterface({ myStream, remoteStream, onEndCall, isAud
           ref={videoContainerRef}
           className={`relative w-full max-w-4xl aspect-video bg-slate-900 rounded-2xl overflow-hidden mb-4 shadow-xl ${isFullScreen ? "fixed inset-0 z-50 max-w-none rounded-none" : ""}`}
         >
-          {remoteStream ? (
-            <video ref={remoteVideoRef} autoPlay playsInline className="w-full h-full object-cover" />
-          ) : (
+          {/* Remote video - add conditional rendering based on local stream expansion */}
+          {remoteStream && (
+            <div className={isLocalStreamExpanded ? "hidden" : "block w-full h-full"}>
+              <video ref={remoteVideoRef} autoPlay playsInline className="w-full h-full object-cover" />
+            </div>
+          )}
+
+          {/* When local stream is expanded, show remote stream in small container */}
+          {remoteStream && isLocalStreamExpanded && (
+            <div
+              className="absolute bottom-2 left-2 w-1/4 md:w-1/5 aspect-video bg-slate-800 rounded-xl overflow-hidden border-2 border-white shadow-lg z-20"
+              onClick={(e) => {
+                e.stopPropagation()
+                toggleLocalStreamExpansion()
+              }}
+            >
+              <video autoPlay playsInline className="w-full h-full object-cover" srcobject={remoteStream} />
+            </div>
+          )}
+
+          {/* Modify the connecting state to respect local stream expansion */}
+          {!remoteStream && !isLocalStreamExpanded && (
             <div className="w-full h-full flex items-center justify-center">
               <div className="text-white text-center">
                 <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-emerald-500 mx-auto mb-4"></div>
@@ -235,11 +259,14 @@ export default function CallInterface({ myStream, remoteStream, onEndCall, isAud
             </div>
           )}
 
-          {/* Local video - increased size */}
+          {/* Local video */}
           <div
-            className={`absolute bottom-2 right-2 ${
-              isFullScreen ? "w-1/3 md:w-1/3" : "w-1/4 md:w-1/4 sm:w-1/3"
-            } aspect-video bg-slate-800 rounded-xl overflow-hidden border-2 border-white shadow-lg transition-all duration-300 hover:scale-105`}
+            onClick={toggleLocalStreamExpansion}
+            className={`${
+              isLocalStreamExpanded
+                ? "absolute inset-0 z-10 w-full h-full"
+                : `absolute bottom-2 right-2 ${isFullScreen ? "w-1/3 md:w-1/5" : "w-1/4 md:w-1/4 sm:w-1/3"}`
+            } aspect-video bg-slate-800 rounded-xl overflow-hidden border-2 border-white shadow-lg transition-all duration-300 hover:scale-105 cursor-pointer`}
           >
             <video
               ref={localVideoRef}
@@ -251,6 +278,11 @@ export default function CallInterface({ myStream, remoteStream, onEndCall, isAud
             {!videoEnabled && !isAudioOnly && (
               <div className="absolute inset-0 flex items-center justify-center bg-slate-800">
                 <VideoOff className="h-8 w-8 text-slate-400" />
+              </div>
+            )}
+            {isLocalStreamExpanded && (
+              <div className="absolute top-2 right-2 bg-black/50 backdrop-blur-sm text-white px-2 py-1 rounded-full text-xs">
+                Click to minimize
               </div>
             )}
           </div>
