@@ -53,7 +53,7 @@ export default function UserRegistration({ onRegister }) {
           </div>
         </CardContent>
         <CardFooter>
-          <Button type="submit" className="w-full" disabled={isLoading || !userName.trim()}>
+          <Button type="submit" className="w-full mt-6" disabled={isLoading || !userName.trim()}>
             {isLoading ? "Registering..." : "Register"}
           </Button>
         </CardFooter>
