@@ -184,6 +184,27 @@ export default function CallInterface({ myStream, remoteStream, onEndCall, isAud
     }
   }, [])
 
+  // Detect mobile device and adjust video size
+  useEffect(() => {
+    const handleResize = () => {
+      const isMobile = window.innerWidth < 768
+      const localVideo = document.querySelector('[ref="localVideoRef"]')?.parentElement
+
+      if (localVideo) {
+        if (isMobile) {
+          localVideo.style.width = "40%" // Larger on mobile
+        } else {
+          localVideo.style.width = isFullScreen ? "20%" : "25%"
+        }
+      }
+    }
+
+    window.addEventListener("resize", handleResize)
+    handleResize() // Initial call
+
+    return () => window.removeEventListener("resize", handleResize)
+  }, [isFullScreen])
+
   return (
     <div className="flex flex-col items-center">
       {!isAudioOnly ? (
@@ -214,7 +235,7 @@ export default function CallInterface({ myStream, remoteStream, onEndCall, isAud
 
           {/* Local video */}
           <div
-            className={`absolute bottom-4 right-4 ${isFullScreen ? "w-1/5" : "w-1/4"} aspect-video bg-slate-800 rounded-xl overflow-hidden border-2 border-white shadow-lg transition-all duration-300 hover:scale-105`}
+            className={`absolute bottom-2 right-2 ${isFullScreen ? "w-1/3 h-1/6 md:h-1/4 md:w-1/5" : "w-1/4 md:w-1/4 sm:w-1/3"} aspect-video bg-slate-800 rounded-xl overflow-hidden border-2 border-white shadow-lg transition-all duration-300 hover:scale-105`}
           >
             <video
               ref={localVideoRef}
