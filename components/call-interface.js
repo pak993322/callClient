@@ -222,13 +222,30 @@ export default function CallInterface({ myStream, remoteStream, onEndCall, isAud
         >
           {/* Remote video - add conditional rendering based on local stream expansion */}
           {remoteStream && (
-            <div className={isLocalStreamExpanded ? "hidden" : "block w-full h-full"}>
-              <video ref={remoteVideoRef} autoPlay playsInline className="w-full h-full object-cover" />
-            </div>
-          )}
+  <div
+    className={`${
+      isLocalStreamExpanded
+        ? "absolute bottom-2 left-2 w-1/4 md:w-1/5 aspect-video"
+        : "block w-full h-full"
+    } bg-slate-800 rounded-xl overflow-hidden border-2 border-white shadow-lg z-20`}
+    onClick={(e) => {
+      if (isLocalStreamExpanded) {
+        e.stopPropagation();
+        toggleLocalStreamExpansion();
+      }
+    }}
+  >
+    <video
+      ref={remoteVideoRef}
+      autoPlay
+      playsInline
+      className="w-full h-full object-cover"
+    />
+  </div>
+)}
 
           {/* When local stream is expanded, show remote stream in small container */}
-          {remoteStream && isLocalStreamExpanded && (
+          {/* {remoteStream && isLocalStreamExpanded && (
             <div
               className="absolute bottom-2 left-2 w-1/4 md:w-1/5 aspect-video bg-slate-800 rounded-xl overflow-hidden border-2 border-white shadow-lg z-20"
               onClick={(e) => {
@@ -238,7 +255,7 @@ export default function CallInterface({ myStream, remoteStream, onEndCall, isAud
             >
               <video autoPlay playsInline className="w-full h-full object-cover" srcobject={remoteStream} />
             </div>
-          )}
+          )} */}
 
           {/* Modify the connecting state to respect local stream expansion */}
           {!remoteStream && !isLocalStreamExpanded && (
