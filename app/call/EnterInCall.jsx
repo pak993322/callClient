@@ -155,7 +155,7 @@ export default function EnterInCall({ socket, userId, setCallUserFunction, callS
 
     socket.on("incomingCall", async ({ from, callerName, signal, isAudioOnly = false }) => {
       setCallerInfo({ from, signal, callerName, isAudioOnly })
-      console.log("calllller",callerName)
+      console.log("calllller", callerName)
       setIsAudioOnly(isAudioOnly)
       setCallStatus("incoming")
     })
@@ -296,7 +296,7 @@ export default function EnterInCall({ socket, userId, setCallUserFunction, callS
   }
 
   return (
-    <div>
+    <div className="w-full h-full">
       {callStatus === "incoming" && (
         <IncomingCall
           caller={callerInfo.from}

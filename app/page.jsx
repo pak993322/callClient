@@ -25,6 +25,8 @@ export default function Page() {
 
     const newSocket = io("https://testcallbackend-production.up.railway.app")
     setSocket(newSocket)
+    
+    // Set the registration status to true
 
     return () => {
       newSocket.disconnect()
@@ -147,13 +149,6 @@ export default function Page() {
                   </div>
                 )}
               </div>
-
-              {/* Call Interface Section */}
-              {/* {callStatus === "idle" ? (
-                <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-6 flex justify-center">
-                  <PhoneForwarded className="text-[10px]"/><span className="pt-[200xp] text-gray-500">make a call</span>
-                  </div>
-                ):( */}
                   <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-lg p-6">
                   <EnterInCall
                     socket={socket}
@@ -163,7 +158,6 @@ export default function Page() {
                     setCallStatus={setCallStatus}
                   />
                 </div>
-                {/* )} */}
             </div>
           )}
         </div>
