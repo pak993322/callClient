@@ -155,7 +155,7 @@ export default function EnterInCall({ socket, userId, setCallUserFunction, callS
 
     socket.on("incomingCall", async ({ from, callerName, signal, isAudioOnly = false }) => {
       setCallerInfo({ from, signal, callerName, isAudioOnly })
-      console.log("calllller", callerName)
+      console.log("calllller",callerName)
       setIsAudioOnly(isAudioOnly)
       setCallStatus("incoming")
     })
@@ -296,7 +296,7 @@ export default function EnterInCall({ socket, userId, setCallUserFunction, callS
   }
 
   return (
-    <div className="w-full h-full">
+    <div>
       {callStatus === "incoming" && (
         <IncomingCall
           caller={callerInfo.from}
@@ -310,7 +310,7 @@ export default function EnterInCall({ socket, userId, setCallUserFunction, callS
         <div className="text-center p-4 border rounded-lg mb-4">
           <p>
             {isAudioOnly ? "Audio calling" : "Video calling"} user:
-            <span className="font-mono ml-1">{targetUserId}</span>
+            <span className="font-mono ml-1">{callerInfo.callerName}</span>
           </p>
           <Button variant="destructive" onClick={endCall}>
             Cancel Call
