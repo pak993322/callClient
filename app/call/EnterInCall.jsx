@@ -310,7 +310,7 @@ export default function EnterInCall({ socket, userId, setCallUserFunction, callS
         <div className="text-center p-4 border rounded-lg mb-4">
           <p>
             {isAudioOnly ? "Audio calling" : "Video calling"} user:
-            <span className="font-mono ml-1">{callerInfo.callerName}</span>
+            <span className="font-mono ml-1">{targetUserId}</span>
           </p>
           <Button variant="destructive" onClick={endCall}>
             Cancel Call
