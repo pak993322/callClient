@@ -24,7 +24,7 @@ export default function Page() {
   useEffect(() => {
     setUserId(userData)
 
-    const newSocket = io("http://localhost:3001")
+    const newSocket = io("https://testcallbackend-production.up.railway.app")
     setSocket(newSocket)
 
     // Set the registration status to true
