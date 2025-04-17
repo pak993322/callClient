@@ -99,7 +99,7 @@ export default function CallInterface({ myStream, remoteStream, onEndCall, isAud
     // Set a new timeout to hide controls after 3 seconds
     controlsTimeoutRef.current = setTimeout(() => {
       setControlsVisible(false)
-    }, 2000)
+    }, 3000)
   }
 
   // Clean up timeout on unmount
@@ -116,7 +116,7 @@ export default function CallInterface({ myStream, remoteStream, onEndCall, isAud
       {!isAudioOnly ? (
         <div
           id="video-container"
-          className="relative w-full max-w-5xl aspect-video bg-slate-900 overflow-hidden mb-4 shadow-xl"
+          className="relative w-full md:max-w-5xl aspect-video bg-slate-900 overflow-hidden mb-4 shadow-xl"
         >
           {/* Remote video */}
           {remoteStream && (

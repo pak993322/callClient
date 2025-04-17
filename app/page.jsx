@@ -4,7 +4,7 @@ import { io } from "socket.io-client"
 import { Button } from "@/components/ui/button"
 import EnterInCall from "./call/EnterInCall"
 import UserRegistration from "../components/user-registration"
-import { Phone, Video, Users, User } from "lucide-react"
+import { Phone, Video, Users, User, AlertCircle, X } from "lucide-react"
 
 export default function Page() {
   const [userId, setUserId] = useState("")
@@ -14,6 +14,7 @@ export default function Page() {
   const [callUserFn, setCallUserFn] = useState(null)
   const [isRegistered, setIsRegistered] = useState(false)
   const [userData, setUserData] = useState({ id: "", name: "" })
+  const [busyNotification, setBusyNotification] = useState({ show: false, userId: "" })
 
   const handleRegistration = (userId, userName) => {
     setUserData({ id: userId, name: userName })
@@ -23,7 +24,7 @@ export default function Page() {
   useEffect(() => {
     setUserId(userData)
 
-    const newSocket = io("https://testcallbackend-production.up.railway.app")
+    const newSocket = io("http://localhost:3001")
     setSocket(newSocket)
 
     // Set the registration status to true
@@ -48,7 +49,6 @@ export default function Page() {
       socket.off("users")
     }
   }, [socket, userData])
-  console.log("Users:", users)
 
   const handleCallUser = (targetId, isAudioOnly = false) => {
     if (callUserFn) {
@@ -58,14 +58,55 @@ export default function Page() {
     }
   }
 
+  const handleUserBusy = (targetId) => {
+    // Find the user name from the users array
+    const busyUser = users.find((user) => user.id === targetId)
+    const userName = busyUser ? busyUser.name : targetId
+
+    setBusyNotification({
+      show: true,
+      userId: userName,
+    })
+
+    // Auto-hide notification after 5 seconds
+    setTimeout(() => {
+      setBusyNotification({ show: false, userId: "" })
+    }, 5000)
+  }
+
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+      {/* Busy Notification */}
+      {busyNotification.show && (
+        <div className="fixed top-4 right-4 z-50 max-w-md bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg shadow-lg animate-in slide-in-from-top-5">
+          <div className="flex items-start p-4">
+            <div className="flex-shrink-0">
+              <AlertCircle className="h-5 w-5 text-red-500" />
+            </div>
+            <div className="ml-3 flex-1">
+              <p className="text-sm font-medium text-red-800 dark:text-red-200">User Busy</p>
+              <p className="mt-1 text-sm text-red-700 dark:text-red-300">
+                {typeof busyNotification.userId === "string" && busyNotification.userId
+                  ? `${busyNotification.userId} is currently in another call. Please try again later.`
+                  : "The user you're trying to call is currently in another call. Please try again later."}
+              </p>
+            </div>
+            <button
+              type="button"
+              className="ml-auto -mx-1.5 -my-1.5 bg-red-50 dark:bg-red-900/30 text-red-500 rounded-lg p-1.5 hover:bg-red-100 dark:hover:bg-red-800 focus:outline-none"
+              onClick={() => setBusyNotification({ show: false, userId: "" })}
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-5xl mx-auto">
           <h1 className="text-4xl font-bold text-center mb-8 bg-clip-text text-transparent bg-gradient-to-r from-emerald-500 to-teal-600 dark:from-emerald-400 dark:to-teal-500">
             Connect<span className="text-slate-800 dark:text-white">Now</span>
           </h1>
-
           {!isRegistered ? (
             <div className="bg-white dark:bg-slate-800 rounded-2xl shadow-xl p-8 mb-8 transition-all duration-300 hover:shadow-2xl">
               <UserRegistration onRegister={handleRegistration} />
@@ -162,6 +203,7 @@ export default function Page() {
                   setCallUserFunction={setCallUserFn}
                   callStatus={callStatus}
                   setCallStatus={setCallStatus}
+                  onUserBusy={handleUserBusy}
                 />
               </div>
             </div>

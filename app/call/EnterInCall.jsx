@@ -5,7 +5,7 @@ import CallInterface from "@/components/call-interface"
 import IncomingCall from "@/components/incoming-call"
 import { Button } from "@/components/ui/button"
 
-export default function EnterInCall({ socket, userId, setCallUserFunction, callStatus, setCallStatus }) {
+export default function EnterInCall({ socket, userId, setCallUserFunction, callStatus, setCallStatus, onUserBusy }) {
   const [myStream, setMyStream] = useState(null)
   const [remoteStream, setRemoteStream] = useState(null)
   const [peer, setPeer] = useState(null)
@@ -155,7 +155,7 @@ export default function EnterInCall({ socket, userId, setCallUserFunction, callS
 
     socket.on("incomingCall", async ({ from, callerName, signal, isAudioOnly = false }) => {
       setCallerInfo({ from, signal, callerName, isAudioOnly })
-      console.log("calllller",callerName)
+      console.log("calllller", callerName)
       setIsAudioOnly(isAudioOnly)
       setCallStatus("incoming")
     })
@@ -180,13 +180,30 @@ export default function EnterInCall({ socket, userId, setCallUserFunction, callS
       stopMediaStream()
     })
 
+    socket.on("userBusy", () => {
+      console.log("User is busy")
+      // Clean up any call attempt
+      if (peer) {
+        peer.destroy()
+        setPeer(null)
+      }
+      stopMediaStream()
+      setCallStatus("idle")
+
+      // Notify the parent component to show the busy notification
+      if (onUserBusy) {
+        onUserBusy(targetUserId)
+      }
+    })
+
     return () => {
       socket.off("incomingCall")
       socket.off("callAccepted")
       socket.off("callDeclined")
       socket.off("callEnded")
+      socket.off("userBusy")
     }
-  }, [socket, peer])
+  }, [socket, peer, onUserBusy, targetUserId])
 
   useEffect(() => {
     const callUser = async (targetId, audioOnly = false) => {
@@ -295,6 +312,31 @@ export default function EnterInCall({ socket, userId, setCallUserFunction, callS
     stopMediaStream()
   }
 
+  const [showCallInterface, setShowCallInterface] = useState(false);
+  const [showCallingText, setShowCallingText] = useState(false);
+
+  useEffect(() => {
+    if (callStatus === "calling") {
+      setShowCallingText(true);
+      const timer = setTimeout(() => {
+        setShowCallingText(false);
+      }, 5000); // 3 seconds
+
+      return () => clearTimeout(timer);
+    }
+  }, [callStatus]);
+  useEffect(() => {
+    let timeout;
+    if (callStatus === "connected" || callStatus === "calling") {
+      timeout = setTimeout(() => {
+        setShowCallInterface(true);
+      }, 5000); // 3 seconds delay
+    } else {
+      setShowCallInterface(false);
+    }
+
+    return () => clearTimeout(timeout); // Cleanup on unmount or callStatus change
+  }, [callStatus]);
   return (
     <div>
       {callStatus === "incoming" && (
@@ -306,7 +348,7 @@ export default function EnterInCall({ socket, userId, setCallUserFunction, callS
           onDecline={declineCall}
         />
       )}
-      {callStatus === "calling" && (
+      {callStatus === "calling" && showCallInterface && (
         <div className="text-center p-4 border rounded-lg mb-4">
           <p>
             {isAudioOnly ? "Audio calling" : "Video calling"} user:
@@ -317,7 +359,10 @@ export default function EnterInCall({ socket, userId, setCallUserFunction, callS
           </Button>
         </div>
       )}
-      {(callStatus === "connected" || callStatus === "calling") && (
+      {callStatus === "calling" && showCallingText && (
+        <h1>Calling...</h1>
+      )}
+      {callStatus === "calling" && showCallInterface && (
         <CallInterface
           myStream={myStream}
           remoteStream={remoteStream}
@@ -326,6 +371,17 @@ export default function EnterInCall({ socket, userId, setCallUserFunction, callS
           onToggleScreenShare={toggleScreenShare}
         />
       )}
+
+      {callStatus === "connected" && (
+        <CallInterface
+          myStream={myStream}
+          remoteStream={remoteStream}
+          onEndCall={endCall}
+          isAudioOnly={isAudioOnly}
+          onToggleScreenShare={toggleScreenShare}
+        />
+      )}
+
     </div>
   )
 }
